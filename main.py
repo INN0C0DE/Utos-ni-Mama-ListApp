@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
 import pymysql
-import time
 
 # Connect to the MySQL database
 db = pymysql.connect(
@@ -29,31 +28,48 @@ x = (screen_width - splash_width) // 2
 y = (screen_height - splash_height) // 2
 splash_screen.geometry(f"{splash_width}x{splash_height}+{x}+{y}")
 
-# Create a label for the loading bar
-loading_bar = tk.Label(splash_screen, bg="#E6FFFD", relief=tk.SUNKEN)
-loading_bar.place(relx=0.1, rely=0.7, relwidth=0.8, relheight=0.15)
+# Create a canvas for the progress bar
+canvas_width = 200
+canvas_height = 20
+progress_canvas = tk.Canvas(splash_screen, width=canvas_width, height=canvas_height, bg="#E6FFFD", bd=0, highlightthickness=0)
+progress_canvas.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
 
-# Update the splash screen and loading bar
+# Draw an empty progress bar rectangle
+empty_bar_width = 200
+empty_bar_height = 10
+empty_bar_x = (canvas_width - empty_bar_width) // 2
+empty_bar_y = (canvas_height - empty_bar_height) // 2
+empty_bar = progress_canvas.create_rectangle(empty_bar_x, empty_bar_y, empty_bar_x + empty_bar_width, empty_bar_y + empty_bar_height, fill="#FFFFFF", outline="")
+
+# Update the splash screen
 splash_screen.update()
-loading_bar.update()
 
 # Simulate loading progress
-progress_steps = 10
-for step in range(progress_steps + 1):
-    loading_bar["text"] = f"Loading... {step * 10}%"
-    loading_bar.update()
-    time.sleep(0.3 / progress_steps)
+progress_steps = 30
+fill_width = 0
+fill_height = 10
+fill_color = "#90EE90"  # Green color for progress
+fill_increment = empty_bar_width / progress_steps
+progress_duration = 3  # Duration in seconds
 
-# Destroy the splash screen after 3 seconds
-time.sleep(3)
-splash_screen.destroy()
+def update_progress(step):
+    global fill_width
 
-# Create the main window
-# window = tk.Toplevel()
-# window.title("To-Do List")
+    if step <= progress_steps:
+        fill_width += fill_increment
+        fill_bar = progress_canvas.create_rectangle(empty_bar_x, empty_bar_y, empty_bar_x + fill_width, empty_bar_y + fill_height, fill=fill_color, outline="")
+        progress_canvas.update()
 
-# Set the background color to light blue
-# window.configure(bg="#B0E2FF")
+        # Schedule the next progress update
+        splash_screen.after(int(progress_duration * 1000 / progress_steps), update_progress, step + 1)
+    else:
+        # Destroy the splash screen after the specified duration
+        splash_screen.after(int(progress_duration * 1000), splash_screen.destroy)
+
+update_progress(1)
+
+# Start the Tkinter event loop
+splash_screen.mainloop()
 
 def populate_listbox():
     # Fetch the items from the database
