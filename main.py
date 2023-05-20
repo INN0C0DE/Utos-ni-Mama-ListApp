@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 import pymysql
+import time
 
 # Connect to the MySQL database
 db = pymysql.connect(
@@ -13,6 +14,46 @@ cursor = db.cursor()
 
 items = []  # List to store the items
 ids = []  # List to store the associated id_unm values
+
+# Create the splash screen window
+splash_screen = tk.Tk()
+splash_screen.title("Splash Screen")
+splash_screen.configure(bg="#B0E2FF")
+
+# Set the splash screen size
+splash_width = 300
+splash_height = 200
+screen_width = splash_screen.winfo_screenwidth()
+screen_height = splash_screen.winfo_screenheight()
+x = (screen_width - splash_width) // 2
+y = (screen_height - splash_height) // 2
+splash_screen.geometry(f"{splash_width}x{splash_height}+{x}+{y}")
+
+# Create a label for the loading bar
+loading_bar = tk.Label(splash_screen, bg="#E6FFFD", relief=tk.SUNKEN)
+loading_bar.place(relx=0.1, rely=0.7, relwidth=0.8, relheight=0.15)
+
+# Update the splash screen and loading bar
+splash_screen.update()
+loading_bar.update()
+
+# Simulate loading progress
+progress_steps = 10
+for step in range(progress_steps + 1):
+    loading_bar["text"] = f"Loading... {step * 10}%"
+    loading_bar.update()
+    time.sleep(0.3 / progress_steps)
+
+# Destroy the splash screen after 3 seconds
+time.sleep(3)
+splash_screen.destroy()
+
+# Create the main window
+# window = tk.Toplevel()
+# window.title("To-Do List")
+
+# Set the background color to light blue
+# window.configure(bg="#B0E2FF")
 
 def populate_listbox():
     # Fetch the items from the database
