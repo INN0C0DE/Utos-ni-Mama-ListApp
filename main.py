@@ -162,7 +162,7 @@ def remove_item():
 
 # Create the main window
 window = tk.Tk()
-window.title("To-Do List")
+window.title("Utos ni Mama ListApp")
 
 # Set the background color to light blue
 window.configure(bg="#B0E2FF")
