@@ -14,63 +14,6 @@ cursor = db.cursor()
 items = []  # List to store the items
 ids = []  # List to store the associated id_unm values
 
-# Create the splash screen window
-splash_screen = tk.Tk()
-splash_screen.title("Splash Screen")
-splash_screen.configure(bg="#B0E2FF")
-
-# Set the splash screen size
-splash_width = 300
-splash_height = 200
-screen_width = splash_screen.winfo_screenwidth()
-screen_height = splash_screen.winfo_screenheight()
-x = (screen_width - splash_width) // 2
-y = (screen_height - splash_height) // 2
-splash_screen.geometry(f"{splash_width}x{splash_height}+{x}+{y}")
-
-# Create a canvas for the progress bar
-canvas_width = 200
-canvas_height = 20
-progress_canvas = tk.Canvas(splash_screen, width=canvas_width, height=canvas_height, bg="#E6FFFD", bd=0, highlightthickness=0)
-progress_canvas.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
-
-# Draw an empty progress bar rectangle
-empty_bar_width = 200
-empty_bar_height = 10
-empty_bar_x = (canvas_width - empty_bar_width) // 2
-empty_bar_y = (canvas_height - empty_bar_height) // 2
-empty_bar = progress_canvas.create_rectangle(empty_bar_x, empty_bar_y, empty_bar_x + empty_bar_width, empty_bar_y + empty_bar_height, fill="#FFFFFF", outline="")
-
-# Update the splash screen
-splash_screen.update()
-
-# Simulate loading progress
-progress_steps = 30
-fill_width = 0
-fill_height = 10
-fill_color = "#90EE90"  # Green color for progress
-fill_increment = empty_bar_width / progress_steps
-progress_duration = 3  # Duration in seconds
-
-def update_progress(step):
-    global fill_width
-
-    if step <= progress_steps:
-        fill_width += fill_increment
-        fill_bar = progress_canvas.create_rectangle(empty_bar_x, empty_bar_y, empty_bar_x + fill_width, empty_bar_y + fill_height, fill=fill_color, outline="")
-        progress_canvas.update()
-
-        # Schedule the next progress update
-        splash_screen.after(int(progress_duration * 1000 / progress_steps), update_progress, step + 1)
-    else:
-        # Destroy the splash screen after the specified duration
-        splash_screen.after(int(progress_duration * 1000), splash_screen.destroy)
-
-update_progress(1)
-
-# Start the Tkinter event loop
-splash_screen.mainloop()
-
 def populate_listbox():
     # Fetch the items from the database
     cursor.execute("SELECT id_unm, unm_utos FROM unm_list")
@@ -160,6 +103,15 @@ def remove_item():
     else:
         messagebox.showwarning("No Selection", "Please select an item to remove.")
 
+def on_select(event):
+    # Get the selected item from the listbox
+    selected_index = listbox.curselection()
+    if selected_index:
+        item = listbox.get(selected_index[0])
+        # Set the selected item in the entry field
+        entry.delete(0, tk.END)
+        entry.insert(tk.END, item)
+
 # Create the main window
 window = tk.Tk()
 window.title("Utos ni Mama ListApp")
@@ -185,6 +137,9 @@ listbox.pack(fill=tk.BOTH, padx=10, pady=10, expand=True)
 # Create an entry field to add/update items
 entry = tk.Entry(window, bg="#E6FFFD")
 entry.pack(padx=10, pady=5, fill=tk.BOTH)
+
+# Bind the listbox selection event to the on_select function
+listbox.bind("<<ListboxSelect>>", on_select)
 
 # Create a frame to hold the buttons
 button_frame = tk.Frame(window)
